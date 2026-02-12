@@ -964,13 +964,22 @@
             }
 
             #yesBtn {
-                top: 55% !important;
+                top: 50% !important;
+                z-index: 110 !important;
             }
 
             #noBtn {
-                top: 65% !important;
+                top: 68% !important;
+                z-index: 105 !important;
                 /* Sur mobile, ne pas permettre le déplacement aléatoire */
                 pointer-events: auto !important;
+            }
+
+            /* Sur mobile, quand le bouton explose, le masquer complètement */
+            #noBtn.exploding {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                display: none !important;
             }
 
             /* Désactiver l'animation de téléportation sur mobile */
