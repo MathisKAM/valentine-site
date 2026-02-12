@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ST-Valentin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&family=Pacifico&family=Fredoka:wght@600;700&family=Comfortaa:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            /* Pastel pink background behind everything */
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 50%, #FFD1DC 100%);
+        }
+
+        /* Main container for centering the image */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Main illustration image */
+        #mainImage {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 10;
+        }
+
+        #mainImage.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Question text above buttons */
+        .question-text {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Pacifico', cursive;
+            font-size: 3.5rem;
+            font-weight: 400;
+            background: linear-gradient(135deg, #FF69B4, #FF1493, #C71585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(3px 3px 6px rgba(255, 105, 180, 0.4));
+            z-index: 50;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+            margin: 0;
+            padding: 0 20px;
+            animation: floatText 3s ease-in-out infinite;
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-10px); }
+        }
+
+        .question-text.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Base button styles - positioned absolutely on top of image */
+        button {
+            position: fixed;
+            padding: 24px 80px;
+            font-size: 1.8rem;
+            font-family: 'Fredoka', sans-serif;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.3);
+            z-index: 100;
+            pointer-events: auto;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-5px) scale(1.1) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25), 0 0 0 6px rgba(255, 255, 255, 0.5);
+        }
+
+        button:active {
+            transform: translateY(-2px) scale(1.05) !important;
+        }
+
+        /* Annuler les effets de hover/active pour certains boutons */
+        #bonusBtn:hover {
+            transform: translateX(-50%) !important;
+        }
+
+        #validateBtn:hover {
+            transform: none !important;
+        }
+
+        #bonusBtn:active {
+            transform: translateX(-50%) !important;
+        }
+
+        #validateBtn:active {
+            transform: none !important;
+        }
+
+        /* "Oui" button - positioned to match illustration */
+        #yesBtn {
+            background: linear-gradient(135deg, #FFB6D9 0%, #FFC9E5 100%);
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            /* Initial position - will be adjusted by JavaScript */
+            left: 20%;
+            top: 52%;
+            opacity: 1;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease-in-out;
+        }
+
+        #yesBtn:hover {
+            background: linear-gradient(135deg, #FFA3D1 0%, #FFB8E0 100%);
+        }
+
+        #yesBtn.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* "Non" button - positioned to match illustration */
+        #noBtn {
+            background: linear-gradient(135deg, #E8B4D9 0%, #F3C8E8 100%);
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            /* Initial position - will be adjusted by JavaScript */
+            left: 70%;
+            top: 52%;
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease-in-out, transform 0.3s ease, font-size 0.3s ease;
+            opacity: 1;
+        }
+
+        #noBtn:hover {
+            background: linear-gradient(135deg, #DFA3CE 0%, #EAB8DD 100%);
+        }
+
+        /* Animation pour le bouton Non quand il se téléporte */
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.3) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 10px 30px rgba(255, 182, 193, 0.6), 0 0 20px rgba(255, 105, 180, 0.8), 0 0 0 6px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        #noBtn.teleporting {
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), sparkle 0.5s ease-in-out;
+        }
+
+        /* Styles d'énervement progressifs */
+        @keyframes angry1 {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        @keyframes angry2 {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(-8deg) scale(1.05); }
+            75% { transform: rotate(8deg) scale(1.05); }
+        }
+
+        @keyframes angry3 {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            20% { transform: rotate(-12deg) scale(1.1); }
+            40% { transform: rotate(12deg) scale(1.1); }
+            60% { transform: rotate(-12deg) scale(1.1); }
+            80% { transform: rotate(12deg) scale(1.1); }
+        }
+
+        @keyframes angry4 {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            10% { transform: rotate(-20deg) scale(1.15); }
+            20% { transform: rotate(20deg) scale(1.15); }
+            30% { transform: rotate(-20deg) scale(1.15); }
+            40% { transform: rotate(20deg) scale(1.15); }
+            50% { transform: rotate(-20deg) scale(1.15); }
+            60% { transform: rotate(20deg) scale(1.15); }
+            70% { transform: rotate(-20deg) scale(1.15); }
+            80% { transform: rotate(20deg) scale(1.15); }
+        }
+
+        #noBtn.angry1 {
+            animation: angry1 0.4s ease-in-out infinite;
+        }
+
+        #noBtn.angry2 {
+            animation: angry2 0.3s ease-in-out infinite;
+            color: #FF69B4;
+        }
+
+        #noBtn.angry3 {
+            animation: angry3 0.25s ease-in-out infinite;
+            color: #FF1493;
+            font-weight: 900;
+        }
+
+        #noBtn.angry4 {
+            animation: angry4 0.2s ease-in-out infinite;
+            color: #C71585;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFB6D9 0%, #FF69B4 100%);
+        }
+
+        /* Animation d'explosion finale - style bulle */
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                filter: blur(0px);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.3);
+            }
+            15% {
+                transform: scale(1.15);
+                opacity: 1;
+                filter: blur(0px);
+                box-shadow: 0 10px 40px rgba(255, 182, 193, 0.4), 0 0 20px rgba(255, 105, 180, 0.3);
+            }
+            40% {
+                transform: scale(1.4);
+                opacity: 0.9;
+                filter: blur(1px);
+                box-shadow: 0 10px 50px rgba(255, 182, 193, 0.5), 0 0 40px rgba(255, 105, 180, 0.5);
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0.4;
+                filter: blur(3px);
+                box-shadow: 0 0 80px rgba(255, 182, 193, 0.3), 0 0 100px rgba(255, 105, 180, 0.2);
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+                filter: blur(8px);
+                box-shadow: 0 0 120px rgba(255, 182, 193, 0), 0 0 150px rgba(255, 105, 180, 0);
+            }
+        }
+
+        @keyframes bubblePop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(2.5);
+            }
+        }
+
+        #noBtn.exploding {
+            animation: explode 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            pointer-events: none;
+        }
+
+        #noBtn.exploding::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120%;
+            height: 120%;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 182, 193, 0.6);
+            animation: bubblePop 1s ease-out forwards;
+        }
+
+        #noBtn.exploding::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150%;
+            height: 150%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 105, 180, 0.4);
+            animation: bubblePop 1s ease-out 0.1s forwards;
+        }
+
+        #noBtn.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Video element - same size as image for seamless transition */
+        #valentineVideo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 30;
+            pointer-events: none;
+            /* Amélioration de la qualité vidéo */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            -webkit-font-smoothing: antialiased;
+            will-change: opacity;
+        }
+
+        #valentineVideo.show {
+            opacity: 1;
+        }
+
+        /* Final message card */
+        .final-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 50px 70px;
+            padding-bottom: 120px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: left;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 40;
+            max-width: 85%;
+            max-height: 80vh;
+            overflow-y: hidden;
+        }
+
+        .final-card.show {
+            opacity: 1;
+        }
+
+        .final-message {
+            font-family: 'Comfortaa', cursive;
+            font-size: 1.3rem;
+            color: #333;
+            font-weight: 400;
+            line-height: 2;
+            text-align: left;
+        }
+
+        .final-message strong {
+            font-weight: 700;
+            color: #FF1493;
+        }
+
+        .final-message p {
+            margin-bottom: 1.5rem;
+        }
+
+        .final-message .greeting {
+            font-size: 1.6rem;
+            color: #FF69B4;
+            font-weight: 700;
+            margin-bottom: 1.8rem;
+        }
+
+        .final-message .signature {
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            color: #FF1493;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .question-text {
+                font-size: 2.5rem;
+                top: 25%;
+            }
+
+            button {
+                padding: 18px 50px;
+                font-size: 1.3rem;
+            }
+
+            .final-card {
+                padding: 35px 40px;
+                max-width: 92%;
+            }
+
+            .final-message {
+                font-size: 1.1rem;
+            }
+
+            .final-message .greeting {
+                font-size: 1.4rem;
+            }
+
+            .final-message .signature {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .question-text {
+                font-size: 1.8rem;
+                top: 22%;
+            }
+
+            button {
+                padding: 15px 35px;
+                font-size: 1.1rem;
+            }
+
+            .final-card {
+                padding: 30px 25px;
+                max-width: 95%;
+            }
+
+            .final-message {
+                font-size: 1rem;
+                line-height: 1.8;
+            }
+
+            .final-message .greeting {
+                font-size: 1.2rem;
+            }
+
+            .final-message .signature {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Bouton Bonus */
+        #bonusBtn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out, box-shadow 0.3s ease, filter 0.3s ease !important;
+            z-index: 150;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+            pointer-events: none;
+            filter: brightness(1);
+        }
+
+        #bonusBtn.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #bonusBtn:hover {
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.5);
+            filter: brightness(1.08);
+        }
+
+        #bonusBtn:active {
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.4);
+            filter: brightness(0.95);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6), 0 0 35px rgba(255, 215, 0, 0.6);
+            }
+        }
+
+        /* Modale */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 2rem;
+            color: #FF69B4;
+            margin-bottom: 5px;
+        }
+
+        .modal-subtitle {
+            font-family: 'Comfortaa', cursive;
+            font-size: 1rem;
+            color: #999;
+            margin-bottom: 25px;
+        }
+
+        .modal-instruction {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-instruction .our {
+            color: #FF69B4;
+        }
+
+        .modal-instruction .date {
+            color: #FF1493;
+        }
+
+        /* Roulettes iOS-style */
+        .date-picker {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            height: 200px;
+            position: relative;
+        }
+
+        .date-picker::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 50px;
+            transform: translateY(-50%);
+            background: rgba(255, 182, 193, 0.15);
+            border-top: 2px solid rgba(255, 105, 180, 0.3);
+            border-bottom: 2px solid rgba(255, 105, 180, 0.3);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .picker-column {
+            flex: 1;
+            max-width: 120px;
+            height: 200px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            cursor: grab;
+        }
+
+        .picker-column:active {
+            cursor: grabbing;
+        }
+
+        .picker-column.dragging {
+            scroll-snap-type: none;
+        }
+
+        .picker-column::-webkit-scrollbar {
+            display: none;
+        }
+
+        .picker-item {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-family: 'Fredoka', sans-serif;
+            color: #999;
+            scroll-snap-align: center;
+            transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: none;
+        }
+
+        .picker-item.selected {
+            color: #FF69B4;
+            font-weight: 700;
+            font-size: 1.4rem;
+        }
+
+        .picker-padding {
+            height: 75px;
+        }
+
+        #validateBtn {
+            position: static !important;
+            background: linear-gradient(135deg, #FFB6D9 0%, #FFC9E5 100%);
+            color: white;
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+            transition: box-shadow 0.3s ease, filter 0.3s ease !important;
+            display: block;
+            margin: 0 auto;
+            filter: brightness(1);
+        }
+
+        #validateBtn:hover {
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.4);
+            filter: brightness(1.08);
+        }
+
+        /* Conteneur pour les messages (réservé l'espace) */
+        .message-container {
+            min-height: 50px;
+            max-height: 50px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-message {
+            color: #FF1493;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        /* Image du bon cadeau */
+        #giftVoucher {
+            max-width: 100%;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+            margin-top: 20px;
+            display: none;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        #giftVoucher.show {
+            opacity: 1;
+            transform: scale(1);
+            animation: fadeScale 0.5s ease-in-out;
+            display: block;
+        }
+
+        #giftVoucher:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.4);
+        }
+
+        @keyframes fadeScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-message {
+            font-family: 'Pacifico', cursive;
+            color: #FF69B4;
+            font-size: 1.3rem;
+            margin: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            text-align: center;
+        }
+
+        .success-message.show {
+            opacity: 1;
+        }
+
+        /* Écran de sécurité initial */
+        #securityScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 50%, #FFD1DC 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        #securityScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .security-box {
+            background: white;
+            padding: 60px 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+        }
+
+        .security-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.5rem;
+            color: #FF69B4;
+            margin-bottom: 10px;
+        }
+
+        .security-subtitle {
+            font-family: 'Comfortaa', cursive;
+            font-size: 1.1rem;
+            color: #999;
+            margin-bottom: 30px;
+        }
+
+        #codeInput {
+            width: 100%;
+            padding: 18px 25px;
+            font-size: 1.2rem;
+            border: 3px solid #FFB6D9;
+            border-radius: 50px;
+            text-align: center;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            color: #333;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #codeInput:focus {
+            border-color: #FF69B4;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.3);
+        }
+
+        #securityValidateBtn {
+            background: linear-gradient(135deg, #FFB6D9 0%, #FFC9E5 100%);
+            color: white;
+            padding: 18px 60px;
+            font-size: 1.3rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.3);
+            transition: box-shadow 0.3s ease, filter 0.3s ease !important;
+            margin-top: 25px;
+            filter: brightness(1);
+            position: static !important;
+            transform: none !important;
+        }
+
+        #securityValidateBtn:hover {
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.4);
+            filter: brightness(1.08);
+            transform: none !important;
+        }
+
+        #securityValidateBtn:active {
+            transform: none !important;
+        }
+
+        .security-error {
+            color: #FF1493;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1rem;
+            margin-top: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 600;
+            min-height: 25px;
+        }
+
+        .security-error.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Écran de sécurité initial -->
+    <div id="securityScreen">
+        <div class="security-box">
+            <h1 class="security-title">Code secret 💗</h1>
+            <p class="security-subtitle">Entre le code pour accéder à la surprise</p>
+            
+            <input type="text" id="codeInput" placeholder="Entre le code ici" maxlength="20">
+            
+            <button id="securityValidateBtn">Valider</button>
+            
+            <p class="security-error" id="securityError">Ce n'est pas le bon code… essaie encore 💭</p>
+        </div>
+    </div>
+
+    <!-- Main container with illustration image -->
+    <div class="container">
+        <img id="mainImage" src="assets/Gemini_Generated_Image_wht8wywht8wywht8.png" alt="Valentine Question">
+    </div>
+
+    <!-- Question text -->
+    <h1 class="question-text" id="questionText">Veux-tu être ma Valentine ?</h1>
+
+    <!-- Buttons positioned on top of the image -->
+    <button id="yesBtn">Oui</button>
+    <button id="noBtn">Non</button>
+
+    <!-- Video element (hidden initially, preloaded) -->
+    <video id="valentineVideo" preload="auto" playsinline webkit-playsinline x5-playsinline>
+        <source src="assets/Vidéo sans titre ‐ Réalisée avec Clipchamp.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+    <!-- Final message card (hidden initially) -->
+    <div class="final-card" id="finalCard">
+        <div class="final-message">
+            <p class="greeting">Coucou mon cœur,</p>
+            
+            <p>C'est dommage qu'on ne puisse pas se voir le 14 février, mais je suis tellement content qu'on ait déjà fêté notre propre Saint-Valentin la semaine dernière !</p>
+            
+            <p>Je suis trop heureux que tu sois <strong>ma Valentine</strong>. J'espère que cette petite animation t'a plu ! Tous les jours, on s'aime comme si c'était la Saint-Valentin, et j'adore ça.</p>
+            
+            <p>Dis-moi si ça t'a plu, et si tu veux, je pourrai te préparer d'autres petites surprises pour les prochains événements, en plus des cadeaux que j'aime déjà te faire.</p>
+            
+            <p class="signature">Je t'aime fort. ❤️</p>
+        </div>
+    </div>
+
+    <!-- Bouton Bonus -->
+    <button id="bonusBtn">✨ Bonus</button>
+
+    <!-- Modale pour le code secret -->
+    <div class="modal" id="secretModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Code secret</h2>
+            
+            <p class="modal-instruction">Choisis <span class="our">notre</span> <span class="date">date</span></p>
+            
+            <div class="date-picker">
+                <!-- Jour -->
+                <div class="picker-column" id="dayPicker">
+                    <div class="picker-padding"></div>
+                    <!-- Généré par JS -->
+                    <div class="picker-padding"></div>
+                </div>
+                
+                <!-- Mois -->
+                <div class="picker-column" id="monthPicker">
+                    <div class="picker-padding"></div>
+                    <!-- Généré par JS -->
+                    <div class="picker-padding"></div>
+                </div>
+                
+                <!-- Année -->
+                <div class="picker-column" id="yearPicker">
+                    <div class="picker-padding"></div>
+                    <!-- Généré par JS -->
+                    <div class="picker-padding"></div>
+                </div>
+            </div>
+            
+            <!-- Zone de message réservée AVANT le bouton -->
+            <div class="message-container">
+                <p class="error-message" id="errorMessage">Non… ce n'est pas encore ça. Essaie encore 💗</p>
+                <p class="success-message" id="successMessage">Bravo, voici ton petit cadeau ❤️</p>
+            </div>
+            
+            <button id="validateBtn">Valider</button>
+            
+            <img id="giftVoucher" src="assets/BON StVal.png" alt="Bon cadeau" />
+        </div>
+    </div>
+
+    <script>
+        // === ÉCRAN DE SÉCURITÉ ===
+        const securityScreen = document.getElementById('securityScreen');
+        const codeInput = document.getElementById('codeInput');
+        const securityValidateBtn = document.getElementById('securityValidateBtn');
+        const securityError = document.getElementById('securityError');
+        const CORRECT_CODE = 'QKZEF34HIZV';
+
+        // Validation du code
+        function validateSecurityCode() {
+            const enteredCode = codeInput.value.trim().toUpperCase();
+            
+            if (enteredCode === CORRECT_CODE) {
+                // Code correct - masquer l'écran de sécurité
+                securityError.classList.remove('show');
+                securityScreen.classList.add('hidden');
+                
+                // Supprimer complètement après la transition
+                setTimeout(() => {
+                    securityScreen.style.display = 'none';
+                }, 500);
+            } else {
+                // Code incorrect - afficher l'erreur
+                securityError.classList.add('show');
+                codeInput.value = '';
+                codeInput.focus();
+            }
+        }
+
+        // Event listeners pour l'écran de sécurité
+        securityValidateBtn.addEventListener('click', validateSecurityCode);
+        
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                validateSecurityCode();
+            }
+        });
+
+        // Focus automatique sur l'input au chargement
+        window.addEventListener('load', () => {
+            codeInput.focus();
+        });
+
+        // === CONTENU PRINCIPAL ===
+        // Get DOM elements
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainImage = document.getElementById('mainImage');
+        const questionText = document.getElementById('questionText');
+        const video = document.getElementById('valentineVideo');
+        const finalCard = document.getElementById('finalCard');
+        const bonusBtn = document.getElementById('bonusBtn');
+        const secretModal = document.getElementById('secretModal');
+        const validateBtn = document.getElementById('validateBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const giftVoucher = document.getElementById('giftVoucher');
+        const dayPicker = document.getElementById('dayPicker');
+        const monthPicker = document.getElementById('monthPicker');
+        const yearPicker = document.getElementById('yearPicker');
+
+        // Track "No" button clicks and size
+        let noClickCount = 0;
+        let noButtonSize = 1.8; // Base font size in rem
+        
+        // Text progression for "No" button
+        const noButtonTexts = [
+            "Non"
+        ];
+
+        // Position buttons to overlay the image (centered below the question text)
+        function positionButtons() {
+            const imageRect = mainImage.getBoundingClientRect();
+            
+            // Calculate center position of image
+            const imageCenterX = imageRect.left + imageRect.width / 2;
+            const imageCenterY = imageRect.top + imageRect.height / 2;
+            
+            // Position buttons side by side, raised and slightly to the left
+            const buttonY = imageCenterY - 20; // Raised higher
+            const leftOffset = 40; // Offset to the left
+            const spacing = 40; // Space between buttons (increased for better separation)
+            const btnWidth = 180; // Approximate width (increased to account for padding)
+            
+            // Position "Oui" button (LEFT side)
+            const yesLeft = imageCenterX - btnWidth - spacing / 2 - leftOffset;
+            yesBtn.style.left = yesLeft + 'px';
+            yesBtn.style.top = buttonY + 'px';
+            yesBtn.style.transform = 'none';
+            
+            // Position "Non" button (RIGHT side) - initially
+            if (noClickCount === 0) {
+                const noLeft = imageCenterX + spacing / 2 - leftOffset;
+                noBtn.style.left = noLeft + 'px';
+                noBtn.style.top = buttonY + 'px';
+                noBtn.style.transform = 'none';
+            }
+            
+            console.log('Positioned buttons at Y:', buttonY);
+        }
+
+        // Move "Non" button to random position on screen
+        function moveNoButton() {
+            // Add teleporting animation
+            noBtn.classList.add('teleporting');
+            
+            // Calculate safe boundaries (with margin)
+            const margin = 20;
+            const btnWidth = 200; // Approximate button width
+            const btnHeight = 60; // Approximate button height
+            const maxX = window.innerWidth - btnWidth - margin;
+            const maxY = window.innerHeight - btnHeight - margin;
+            
+            // Generate random position
+            const randomX = Math.random() * (maxX - margin) + margin;
+            const randomY = Math.random() * (maxY - margin) + margin;
+            
+            // Apply new position directly (no transform)
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            noBtn.style.transform = 'none';
+            
+            console.log('Moved No button to:', randomX, randomY);
+            
+            // Remove animation class after it completes
+            setTimeout(() => {
+                noBtn.classList.remove('teleporting');
+            }, 500);
+        }
+
+        // Handle "No" button clicks
+        noBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('No button clicked, count:', noClickCount);
+            
+            noClickCount++;
+            
+            // Supprimer toutes les classes angry précédentes
+            noBtn.classList.remove('angry1', 'angry2', 'angry3', 'angry4');
+            
+            // Augmenter la taille du texte progressivement
+            noButtonSize += 0.2;
+            noBtn.style.fontSize = noButtonSize + 'rem';
+            
+            if (noClickCount === 1) {
+                // Premier clic : léger énervement
+                noBtn.classList.add('angry1');
+                moveNoButton();
+            } else if (noClickCount === 2) {
+                // Deuxième clic : plus énervé
+                noBtn.classList.add('angry2');
+                moveNoButton();
+            } else if (noClickCount === 3) {
+                // Troisième clic : très énervé
+                noBtn.classList.add('angry3');
+                moveNoButton();
+            } else if (noClickCount === 4) {
+                // Quatrième clic : explosion de rage puis disparition
+                noBtn.classList.add('angry4');
+                moveNoButton();
+            } else if (noClickCount >= 5) {
+                // Cinquième clic : EXPLOSION!
+                noBtn.classList.remove('angry1', 'angry2', 'angry3', 'angry4');
+                noBtn.classList.add('exploding');
+            }
+        });
+
+        // Handle "Yes" button click
+        yesBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Yes button clicked');
+            
+            // Fade out the image, question text, and both buttons
+            mainImage.classList.add('fade-out');
+            questionText.classList.add('fade-out');
+            yesBtn.classList.add('fade-out');
+            noBtn.classList.add('fade-out');
+            
+            // After fade out transition, show and play video
+            setTimeout(() => {
+                video.classList.add('show');
+                video.play().catch(err => console.error('Error playing video:', err));
+            }, 550);
+        });
+
+        // Handle video end
+        video.addEventListener('ended', function() {
+            // Fade out video
+            video.classList.remove('show');
+            
+            // After video fades out, show final message card
+            setTimeout(() => {
+                finalCard.classList.add('show');
+                
+                // Show bonus button after message
+                setTimeout(() => {
+                    bonusBtn.classList.add('show');
+                }, 1500);
+            }, 1000);
+        });
+
+        // Position buttons when image loads
+        mainImage.addEventListener('load', positionButtons);
+        
+        // Reposition buttons on window resize
+        window.addEventListener('resize', function() {
+            positionButtons();
+        });
+
+        // If image is already loaded (cached), position immediately
+        if (mainImage.complete) {
+            positionButtons();
+        }
+        
+        // Also position on DOMContentLoaded as fallback
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, positioning buttons');
+            positionButtons();
+        });
+        
+        // Debug: Log button positions
+        console.log('Script loaded');
+        console.log('Yes button:', yesBtn);
+        console.log('No button:', noBtn);
+
+        // ===== BONUS FUNCTIONALITY =====
+        
+        // Mois en français
+        const months = [
+            'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+            'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+        ];
+
+        // Générer les jours (1-31)
+        function generateDays() {
+            const padding1 = dayPicker.querySelector('.picker-padding:first-child');
+            for (let i = 1; i <= 31; i++) {
+                const item = document.createElement('div');
+                item.className = 'picker-item';
+                item.textContent = i;
+                item.dataset.value = i;
+                dayPicker.insertBefore(item, dayPicker.querySelector('.picker-padding:last-child'));
+            }
+        }
+
+        // Générer les mois
+        function generateMonths() {
+            const padding1 = monthPicker.querySelector('.picker-padding:first-child');
+            months.forEach((month, index) => {
+                const item = document.createElement('div');
+                item.className = 'picker-item';
+                item.textContent = month;
+                item.dataset.value = index + 1;
+                monthPicker.insertBefore(item, monthPicker.querySelector('.picker-padding:last-child'));
+            });
+        }
+
+        // Générer les années (1950-2050)
+        function generateYears() {
+            const padding1 = yearPicker.querySelector('.picker-padding:first-child');
+            for (let i = 1950; i <= 2050; i++) {
+                const item = document.createElement('div');
+                item.className = 'picker-item';
+                item.textContent = i;
+                item.dataset.value = i;
+                yearPicker.insertBefore(item, yearPicker.querySelector('.picker-padding:last-child'));
+            }
+        }
+
+        // Mettre à jour la sélection visuelle
+        function updateSelection(picker) {
+            const items = picker.querySelectorAll('.picker-item');
+            const scrollTop = picker.scrollTop;
+            const pickerHeight = picker.clientHeight;
+            const centerPosition = scrollTop + pickerHeight / 2;
+            
+            let closestItem = null;
+            let closestDistance = Infinity;
+            
+            items.forEach(item => {
+                const itemTop = item.offsetTop;
+                const itemCenter = itemTop + item.clientHeight / 2;
+                const distance = Math.abs(itemCenter - centerPosition);
+                
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestItem = item;
+                }
+                
+                item.classList.remove('selected');
+            });
+            
+            if (closestItem) {
+                closestItem.classList.add('selected');
+            }
+        }
+
+        // Snap au centre après le scroll
+        function snapToCenter(picker) {
+            const items = picker.querySelectorAll('.picker-item');
+            const scrollTop = picker.scrollTop;
+            const pickerHeight = picker.clientHeight;
+            const centerPosition = scrollTop + pickerHeight / 2;
+            
+            let closestItem = null;
+            let closestDistance = Infinity;
+            
+            items.forEach(item => {
+                const itemTop = item.offsetTop;
+                const itemCenter = itemTop + item.clientHeight / 2;
+                const distance = Math.abs(itemCenter - centerPosition);
+                
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestItem = item;
+                }
+            });
+            
+            if (closestItem) {
+                const targetScroll = closestItem.offsetTop - (pickerHeight / 2) + (closestItem.clientHeight / 2);
+                picker.scrollTo({
+                    top: targetScroll,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Récupérer la valeur sélectionnée
+        function getSelectedValue(picker) {
+            const selected = picker.querySelector('.picker-item.selected');
+            return selected ? selected.dataset.value : null;
+        }
+
+        // Initialiser les pickers
+        generateDays();
+        generateMonths();
+        generateYears();
+
+        // ===== SYSTÈME DE DRAG INERTIEL =====
+        
+        function setupInertialDrag(picker) {
+            let isDragging = false;
+            let startY = 0;
+            let startScrollTop = 0;
+            let lastY = 0;
+            let lastTime = 0;
+            let velocityY = 0;
+            let animationFrame = null;
+            
+            // Début du drag
+            picker.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startY = e.clientY;
+                lastY = e.clientY;
+                startScrollTop = picker.scrollTop;
+                lastTime = Date.now();
+                velocityY = 0;
+                
+                // Annuler l'animation d'inertie en cours
+                if (animationFrame) {
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame = null;
+                }
+                
+                picker.classList.add('dragging');
+                e.preventDefault();
+            });
+            
+            // Mouvement du drag
+            const onMouseMove = (e) => {
+                if (!isDragging) return;
+                
+                const currentY = e.clientY;
+                const currentTime = Date.now();
+                const deltaY = currentY - lastY;
+                const deltaTime = currentTime - lastTime;
+                
+                // Déplacer le scroll
+                const scrollDelta = startY - currentY;
+                picker.scrollTop = startScrollTop + scrollDelta;
+                
+                // Calculer la vélocité (pixels par milliseconde)
+                if (deltaTime > 0) {
+                    velocityY = deltaY / deltaTime;
+                }
+                
+                lastY = currentY;
+                lastTime = currentTime;
+                
+                updateSelection(picker);
+            };
+            
+            // Fin du drag
+            const onMouseUp = (e) => {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                picker.classList.remove('dragging');
+                
+                // Appliquer l'inertie si la vélocité est suffisante
+                const minVelocity = 0.1;
+                if (Math.abs(velocityY) > minVelocity) {
+                    applyInertia(picker, velocityY);
+                } else {
+                    // Snap immédiat si pas de vélocité
+                    setTimeout(() => {
+                        snapToCenter(picker);
+                    }, 100);
+                }
+            };
+            
+            // Animation d'inertie
+            function applyInertia(picker, initialVelocity) {
+                let velocity = initialVelocity * 1000; // Convertir en pixels/seconde
+                const friction = 0.95; // Coefficient de friction (0-1)
+                const minVelocity = 10; // Vélocité minimale avant arrêt
+                
+                function animate() {
+                    // Appliquer la vélocité au scroll
+                    picker.scrollTop -= velocity / 60; // 60 FPS
+                    
+                    // Appliquer la friction
+                    velocity *= friction;
+                    
+                    // Mettre à jour la sélection
+                    updateSelection(picker);
+                    
+                    // Continuer l'animation si la vélocité est suffisante
+                    if (Math.abs(velocity) > minVelocity) {
+                        animationFrame = requestAnimationFrame(animate);
+                    } else {
+                        // Fin de l'inertie, snap au centre
+                        animationFrame = null;
+                        setTimeout(() => {
+                            snapToCenter(picker);
+                        }, 50);
+                    }
+                }
+                
+                animationFrame = requestAnimationFrame(animate);
+            }
+            
+            // Ajouter les listeners globaux
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+            
+            // Nettoyer si on quitte la fenêtre
+            document.addEventListener('mouseleave', (e) => {
+                if (e.clientY <= 0 || e.clientX <= 0 || 
+                    e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+                    if (isDragging) {
+                        onMouseUp(e);
+                    }
+                }
+            });
+        }
+        
+        // Appliquer le drag inertiel à toutes les colonnes
+        setupInertialDrag(dayPicker);
+        setupInertialDrag(monthPicker);
+        setupInertialDrag(yearPicker);
+
+        // Scroll listeners avec debounce (pour le scroll classique)
+        let scrollTimeout;
+        [dayPicker, monthPicker, yearPicker].forEach(picker => {
+            picker.addEventListener('scroll', () => {
+                updateSelection(picker);
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    if (!picker.classList.contains('dragging')) {
+                        snapToCenter(picker);
+                    }
+                }, 150);
+            });
+        });
+
+        // Initialiser avec des valeurs aléatoires
+        setTimeout(() => {
+            // Jour aléatoire (1-28 pour éviter les problèmes de mois)
+            const randomDay = Math.floor(Math.random() * 28) + 1;
+            const dayItem = dayPicker.querySelector(`[data-value="${randomDay}"]`);
+            if (dayItem) {
+                dayPicker.scrollTop = dayItem.offsetTop - dayPicker.clientHeight / 2 + dayItem.clientHeight / 2;
+                updateSelection(dayPicker);
+            }
+            
+            // Mois aléatoire
+            const randomMonth = Math.floor(Math.random() * 12) + 1;
+            const monthItem = monthPicker.querySelector(`[data-value="${randomMonth}"]`);
+            if (monthItem) {
+                monthPicker.scrollTop = monthItem.offsetTop - monthPicker.clientHeight / 2 + monthItem.clientHeight / 2;
+                updateSelection(monthPicker);
+            }
+            
+            // Année aléatoire (2015-2025)
+            const randomYear = Math.floor(Math.random() * 11) + 2015;
+            const yearItem = yearPicker.querySelector(`[data-value="${randomYear}"]`);
+            if (yearItem) {
+                yearPicker.scrollTop = yearItem.offsetTop - yearPicker.clientHeight / 2 + yearItem.clientHeight / 2;
+                updateSelection(yearPicker);
+            }
+        }, 100);
+
+        // Variable pour suivre si le code a été validé
+        let codeValidated = false;
+        
+        // Ouvrir la modale
+        bonusBtn.addEventListener('click', () => {
+            secretModal.classList.add('show');
+        });
+
+        // Fermer la modale en cliquant à l'extérieur (uniquement après validation)
+        secretModal.addEventListener('click', (e) => {
+            if (e.target === secretModal && codeValidated) {
+                secretModal.classList.remove('show');
+            }
+        });
+
+        // Validation de la date
+        validateBtn.addEventListener('click', () => {
+            const day = parseInt(getSelectedValue(dayPicker));
+            const month = parseInt(getSelectedValue(monthPicker));
+            const year = parseInt(getSelectedValue(yearPicker));
+            
+            console.log('Date sélectionnée:', day, month, year);
+            
+            // Vérifier si c'est le 21 mars 2023
+            if (day === 21 && month === 3 && year === 2023) {
+                // Succès !
+                codeValidated = true;
+                errorMessage.classList.remove('show');
+                successMessage.classList.add('show');
+                validateBtn.style.display = 'none';
+                
+                // Afficher l'image du bon cadeau
+                setTimeout(() => {
+                    giftVoucher.classList.add('show');
+                }, 300);
+            } else {
+                // Erreur
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+                giftVoucher.classList.remove('show');
+                validateBtn.style.display = 'inline-block';
+            }
+        });
+
+        // Télécharger le bon cadeau au clic
+        giftVoucher.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = 'assets/BON StVal.png';
+            link.download = 'BON StVal.png';
+            link.click();
+        });
+    </script>
+</body>
+</html>
