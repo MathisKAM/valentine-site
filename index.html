@@ -933,6 +933,19 @@
 
         /* MOBILE (≤ 480px) */
         @media screen and (max-width: 480px) {
+            /* Transition vidéo plus rapide sur mobile */
+            #mainImage {
+                transition: opacity 0.3s ease-in-out;
+            }
+
+            .question-text {
+                transition: opacity 0.3s ease-in-out;
+            }
+
+            #yesBtn, #noBtn {
+                transition: opacity 0.3s ease-in-out, box-shadow 0.3s ease, filter 0.3s ease !important;
+            }
+
             /* Question text */
             .question-text {
                 font-size: 1.5rem;
@@ -956,6 +969,13 @@
 
             #noBtn {
                 top: 65% !important;
+                /* Sur mobile, ne pas permettre le déplacement aléatoire */
+                pointer-events: auto !important;
+            }
+
+            /* Désactiver l'animation de téléportation sur mobile */
+            #noBtn.teleporting {
+                animation: none !important;
             }
 
             button:hover {
@@ -1003,6 +1023,13 @@
             .picker-item {
                 height: 40px;
                 font-size: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .picker-item.selected {
+                font-size: 1.2rem;
             }
 
             .picker-padding {
@@ -1328,6 +1355,11 @@
 
         // Move "Non" button to random position on screen
         function moveNoButton() {
+            // Ne pas déplacer le bouton sur mobile
+            if (window.innerWidth <= 480) {
+                return;
+            }
+            
             // Add teleporting animation
             noBtn.classList.add('teleporting');
             
@@ -1411,7 +1443,7 @@
             setTimeout(() => {
                 video.classList.add('show');
                 video.play().catch(err => console.error('Error playing video:', err));
-            }, 550);
+            }, 300);
         });
 
         // Handle video end
