@@ -876,6 +876,255 @@
         .security-error.show {
             opacity: 1;
         }
+
+        /* ============================================
+           MEDIA QUERIES - RESPONSIVE DESIGN
+           ============================================ */
+
+        /* TABLETTE (≤ 768px) */
+        @media screen and (max-width: 768px) {
+            /* Question text */
+            .question-text {
+                font-size: 2rem;
+                top: 15%;
+            }
+
+            /* Boutons Oui/Non - réduction progressive */
+            button {
+                padding: 20px 60px;
+                font-size: 1.5rem;
+            }
+
+            /* Modal bonus */
+            .modal-content {
+                padding: 40px 30px;
+                max-width: 90%;
+            }
+
+            .modal-title {
+                font-size: 1.8rem;
+            }
+
+            /* Date picker - colonnes plus étroites */
+            .picker-column {
+                max-width: 100px;
+            }
+
+            /* Écran de sécurité */
+            .security-box {
+                padding: 50px 35px;
+                max-width: 90%;
+            }
+
+            .security-title {
+                font-size: 2.2rem;
+            }
+
+            /* Message final */
+            .final-card {
+                padding: 40px 30px;
+                max-width: 90%;
+            }
+
+            .final-message {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* MOBILE (≤ 480px) */
+        @media screen and (max-width: 480px) {
+            /* Question text */
+            .question-text {
+                font-size: 1.5rem;
+                top: 12%;
+                padding: 0 20px;
+            }
+
+            /* Boutons Oui/Non - empilement vertical */
+            #yesBtn, #noBtn {
+                position: fixed !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                padding: 18px 50px;
+                font-size: 1.3rem;
+                min-width: 160px;
+            }
+
+            #yesBtn {
+                top: 55% !important;
+            }
+
+            #noBtn {
+                top: 65% !important;
+            }
+
+            button:hover {
+                transform: translateX(-50%) translateY(-3px) !important;
+            }
+
+            /* Bouton Bonus */
+            #bonusBtn {
+                bottom: 20px;
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+
+            #bonusBtn:hover {
+                transform: translateX(-50%) !important;
+            }
+
+            /* Modal bonus */
+            .modal-content {
+                padding: 30px 20px;
+                max-width: 95%;
+                width: 95%;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+                margin-bottom: 5px;
+            }
+
+            .modal-instruction {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+
+            /* Date picker - colonnes réduites */
+            .date-picker {
+                gap: 8px;
+            }
+
+            .picker-column {
+                max-width: 80px;
+                height: 150px;
+            }
+
+            .picker-item {
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .picker-padding {
+                height: 55px;
+            }
+
+            #validateBtn {
+                padding: 12px 35px;
+                font-size: 1rem;
+            }
+
+            .message-container {
+                min-height: 40px;
+                max-height: 40px;
+                margin-bottom: 10px;
+            }
+
+            .error-message {
+                font-size: 0.95rem;
+            }
+
+            .success-message {
+                font-size: 1.1rem;
+            }
+
+            /* Écran de sécurité */
+            .security-box {
+                padding: 40px 25px;
+                width: 95%;
+            }
+
+            .security-title {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+
+            .security-subtitle {
+                font-size: 0.95rem;
+                margin-bottom: 25px;
+            }
+
+            #codeInput {
+                padding: 15px 20px;
+                font-size: 1rem;
+                letter-spacing: 1px;
+            }
+
+            #securityValidateBtn {
+                padding: 15px 45px;
+                font-size: 1.1rem;
+                margin-top: 20px;
+            }
+
+            .security-error {
+                font-size: 0.9rem;
+            }
+
+            /* Message final */
+            .final-card {
+                padding: 30px 20px;
+                max-width: 95%;
+                max-height: 85vh;
+            }
+
+            .final-message {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .final-message .greeting {
+                font-size: 1.1rem;
+            }
+
+            .final-message .signature {
+                font-size: 1rem;
+            }
+
+            /* Images et vidéo */
+            #mainImage {
+                max-width: 95vw;
+                max-height: 85vh;
+            }
+
+            #valentineVideo {
+                max-width: 95vw;
+                max-height: 85vh;
+            }
+
+            #giftVoucher {
+                max-width: 100%;
+                margin-top: 15px;
+            }
+        }
+
+        /* TRÈS PETIT MOBILE (≤ 360px) */
+        @media screen and (max-width: 360px) {
+            .question-text {
+                font-size: 1.3rem;
+            }
+
+            #yesBtn, #noBtn {
+                padding: 15px 40px;
+                font-size: 1.1rem;
+                min-width: 140px;
+            }
+
+            .picker-column {
+                max-width: 70px;
+            }
+
+            .picker-item {
+                font-size: 0.9rem;
+            }
+
+            .modal-title {
+                font-size: 1.3rem;
+            }
+
+            .security-title {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1043,6 +1292,11 @@
 
         // Position buttons to overlay the image (centered below the question text)
         function positionButtons() {
+            // Ne pas repositionner sur mobile (géré par CSS)
+            if (window.innerWidth <= 480) {
+                return;
+            }
+            
             const imageRect = mainImage.getBoundingClientRect();
             
             // Calculate center position of image
