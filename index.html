@@ -984,7 +984,7 @@
 
             /* Désactiver l'animation de téléportation sur mobile */
             #noBtn.teleporting {
-                animation: none !important;
+                animation: angry3 0.3s ease-in-out !important;
             }
 
             button:hover {
@@ -1022,6 +1022,11 @@
             /* Date picker - colonnes réduites */
             .date-picker {
                 gap: 8px;
+                height: 150px;
+            }
+
+            .date-picker::before {
+                height: 40px;
             }
 
             .picker-column {
@@ -1043,6 +1048,11 @@
 
             .picker-padding {
                 height: 55px;
+            }
+
+            /* Ajustement vertical pour meilleur centrage */
+            .picker-item {
+                line-height: 40px;
             }
 
             #validateBtn {
@@ -1364,8 +1374,13 @@
 
         // Move "Non" button to random position on screen
         function moveNoButton() {
-            // Ne pas déplacer le bouton sur mobile
+            // Sur mobile, faire vibrer le bouton au lieu de le déplacer
             if (window.innerWidth <= 480) {
+                // Animation de vibration sans déplacement
+                noBtn.classList.add('teleporting');
+                setTimeout(() => {
+                    noBtn.classList.remove('teleporting');
+                }, 500);
                 return;
             }
             
